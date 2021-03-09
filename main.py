@@ -4,6 +4,22 @@ import json
 
 import time
 
+
+def init(userId):
+
+    token = get_token(userId)
+    headers = {
+        "Content-Type": "application/json",
+        "userId": str(userId),
+        "token": token,
+        "platform": "Android",
+        "versioncode":"189",
+        "pea-mg-version":str(1.0),
+        "pea-mg-debugCode":str(45747468),
+        "pea-mg-debugUserId":str(65),
+        "pea-mg-debugToken":"bd1f865df47a83722b7d6bb76c29cf67"
+    }
+
 def get_token(userId):
     r = redis.StrictRedis(host="192.168.1.7", port=6379, db=0)
     #获取用户登录的token
@@ -46,9 +62,6 @@ def addstore(phonenumber,userId):
         "pea-mg-debugUserId":str(65),
         "pea-mg-debugToken":"bd1f865df47a83722b7d6bb76c29cf67"
     }
-
-
-    # pea - mg - timestamp = "1614930051";
 
 
 
@@ -174,7 +187,6 @@ def addPerson(phonenumber,userId):
 
     print(res)
     print(res.text)
-
     # print(json.loads(res.text))
 
     return json.loads(res.text)

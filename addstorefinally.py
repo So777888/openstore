@@ -138,7 +138,7 @@ class creat_store(object):
     # app个人店铺进件
     def addPerson(self):
         # 环境的url
-        url = self.url + '/store/subject/addPerson'
+        url = self.url + '/store/subject/addPersonV2'
         print(url)
         token = self.get_token(userId)
 
@@ -185,7 +185,7 @@ class creat_store(object):
     # app企业店铺进件
     def addCompany(self):
         # 环境的url
-        url = self.url + '/store/subject/addCompany'
+        url = self.url + '/store/subject/addCompanyV2'
         print(url)
         token = self.get_token(userId)
 
@@ -284,14 +284,14 @@ if __name__ == '__main__':
     url_select = 'TEST'
     pea_mg_debugUserId = 65
     pea_mg_debugToken = '59400d00009dbce48619070b084dd50c'
-    phonenumber = 13250230110
-    userId = 965279
+    phonenumber = 13760801111
+    userId = 965916
 
     creat_store_message = creat_store(url_select,str(pea_mg_debugUserId),str(pea_mg_debugToken),phonenumber,userId)
 
     creat_store_message.addstore()
     # creat_store_message.addMicro()
     # creat_store_message.addPerson()
-    creat_store_message.addCompany()
+    # creat_store_message.addCompany()
 
 

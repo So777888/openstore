@@ -60,7 +60,7 @@ class creat_store(object):
             "userId": str(userId),
             "token": token,
             "platform": "Android",
-            "versioncode": "189",
+            "versioncode": "210",
             "pea-mg-version": str(1.0),
             "pea-mg-debugCode": str(45747468),
             "pea-mg-debugUserId": self.pea_mg_debugUserId,
@@ -107,7 +107,7 @@ class creat_store(object):
             "userId": str(userId),
             "token": token,
             "platform": "Android",
-            "versioncode": "189",
+            "versioncode": "210",
             "pea-mg-version": str(1.0),
             "pea-mg-debugCode": str(45747468),
             "pea-mg-debugUserId": self.pea_mg_debugUserId,
@@ -148,7 +148,7 @@ class creat_store(object):
             "userId": str(userId),
             "token": token,
             "platform": "Android",
-            "versioncode": "189",
+            "versioncode": "210",
             "pea-mg-version": str(1.0),
             "pea-mg-debugCode": str(45747468),
             "pea-mg-debugUserId": self.pea_mg_debugUserId,
@@ -165,6 +165,7 @@ class creat_store(object):
             "legalPersonCardValidTime": "2023-08-21",
             "businessLicenseType": 1,
             "businessLicense": self.businessLicense,
+            "businessLicenseStartTime": "2019-01-16",
             "socialCreditCode": "92420105MA4KNXGN84",
             "businessLicenseValidTime": "长期",
             "merchantName": "esigntest批批网实名测试企业",
@@ -194,7 +195,7 @@ class creat_store(object):
             "userId": str(userId),
             "token": token,
             "platform": "Android",
-            "versioncode": "189",
+            "versioncode": "210",
             "pea-mg-version": str(1.0),
             "pea-mg-debugCode": str(45747468),
             "pea-mg-debugUserId": self.pea_mg_debugUserId,
@@ -211,6 +212,7 @@ class creat_store(object):
             "legalPersonCardValidTime": "2023-08-21",
             "businessLicenseType": 2,
             "businessLicense": self.businessLicense,
+            "businessLicenseStartTime": "2019-01-16",
             "socialCreditCode": "912388479846526897",
             "businessLicenseValidTime": "长期",
             "merchantName": "esigntest批批网实名测试企业",
@@ -281,15 +283,15 @@ if __name__ == '__main__':
     # userId = input("输入店铺ID:")、
     url_select = 'TEST'
     pea_mg_debugUserId = 65
-    pea_mg_debugToken = '3354ac6a6e90b140c69bc02c1c800701'
-    phonenumber = 18026426127
-    userId = 965308
+    pea_mg_debugToken = '59400d00009dbce48619070b084dd50c'
+    phonenumber = 13250230110
+    userId = 965279
 
     creat_store_message = creat_store(url_select,str(pea_mg_debugUserId),str(pea_mg_debugToken),phonenumber,userId)
 
-    # creat_store_message.addstore()
-    creat_store_message.addMicro()
+    creat_store_message.addstore()
+    # creat_store_message.addMicro()
     # creat_store_message.addPerson()
-    # creat_store_message.addCompany()
+    creat_store_message.addCompany()
 
 

@@ -1,3 +1,7 @@
+import random
+import string
+from datetime import date
+
 import redis
 import requests
 import json
@@ -20,9 +24,9 @@ class creat_store(object):
             self.url = 'http://rc-zuul.ppwang.com'
             self.storeBanner = "order/202104/01/db3131be055de3f7184013fdaa38c0fb.jpg"
             self.storeLogo = "order/202104/01/aec242fee56a87b592dd092d2dd275ba.jpg"
-            self.legalPersonPortrait = "/store/3E1B4EA5DF420A7B7F36922D18346002.jpg"
-            self.legalPersonNational = "/store/334B51031866926C98597F561DFECF0E.jpg"
-            self.businessLicense = "/store/4DB9BF38DB481AF8A63DAF5FF047D0E3.jpg"
+            self.legalPersonPortrait = "store/3E1B4EA5DF420A7B7F36922D18346002.jpg"
+            self.legalPersonNational = "store/334B51031866926C98597F561DFECF0E.jpg"
+            self.businessLicense = "store/4DB9BF38DB481AF8A63DAF5FF047D0E3.jpg"
 
         self.phonenumber = phonenumber
         self.userId = userId
@@ -31,28 +35,76 @@ class creat_store(object):
 
     def get_token(self, userId):
 
-        r = redis.StrictRedis(host="192.168.1.7", port=6379, db=0)
-        # 获取用户登录的token
-        userId = str(userId)
-        token_redis = r.get('pp-user-test:token:app_user:' + userId)
+        if  url_select == 'TEST':
 
-        if token_redis is not None:
-            str_token = str(token_redis, encoding="utf8")
-            dict_token = json.loads(str_token)
-            token = dict_token["token"]
-            print(token)
-            return token
+            r = redis.StrictRedis(host="192.168.1.7", port=6379, db=0)
+            # 获取用户登录的token
+            userId = str(userId)
+            token_redis = r.get('pp-user-test:token:app_user:' + userId)
+
+            if token_redis is not None:
+                str_token = str(token_redis, encoding="utf8")
+                dict_token = json.loads(str_token)
+
+                token = dict_token["token"]
+                print(token)
+
+                return token
+
+            else:
+                print("获取的token没有数据")
+                exit()
 
         else:
-            print("获取的token没有数据")
-            exit()
+            token = '0000000000f1ce9fd97e8f8a1786bc10'
+            return token
 
+    # 随机创建身份证号
+    def creat_identity(self):
+        maxage = 60
+        minage = 20
+        now = date.today()
+        birth = now.year - int(minage)
+        mon = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12']
+        mon_days = ['31', '28', '31', '30', '31', '30', '31', '31', '30', '31', '30', '31']
+        age = int(maxage) - int(minage)
+        y = str(birth - random.randint(1, age))
+        index1 = random.randint(0, 11)
+        m = str(mon[index1])
+        m = m.zfill(2)
+        maxDay = int(mon_days[index1])
+        d = str(random.randint(1, maxDay))
+        d = d.zfill(2)
+        s = y + m + d
+        area_1 = ["11", "12", "13", "14", "15", "21", "22", "23", "31", "32", "33", "34", "35", "36", "37", "41", "42", "43", "44","45", "46", "50", "51", "52", "53", "54", "61", "62", "63", "64", "65", "71", "81", "82", "91"]
+        area = random.choice(area_1)
+        print(type(area))
+
+        # area = ["11"]
+        print("shenfenzhang  zhuangt type")
+        print(type(area))
+        id = random.choice(area) + ''.join(random.choice(string.digits) for i in range(4)) + s + ''.join(
+            random.choice(string.digits) for i in range(3))
+        identity_id = id[0:17]
+        lid = list(id)
+        temp = 0
+        for nn in range(2, 19):
+            a = int(lid[18 - nn])  # 17到1的数
+            w = (2 ** (nn - 1)) % 11  # 17到1的系数
+            temp += a * w  # temp = temp+a*w 17位数字和系数相乘的结果相加
+        temp = (12 - temp % 11) % 11
+        if temp >= 0 and temp <= 9:
+            identity_id += str(temp)
+        elif temp == 10:
+            identity_id += 'X'
+        return identity_id
 
     # 定义新增店铺信息的方法
     def addstore(self):
         url = self.url + '/store/manage/saveStoreInfo'
         print(url)
         token = self.get_token(userId)
+
 
         # 请求头信息
         headers = {
@@ -94,12 +146,10 @@ class creat_store(object):
     def addMicro(self):
         # 环境的url
         url = self.url + '/store/subject/addMicro'
-        print(url)
         token = self.get_token(userId)
-        card_1 = "410222197701163011"
-        print(self.storeBanner)
-        pr = self.storeBanner
-        print(pr)
+        # card_1 = "112031197402081311"
+        card_1 = self.creat_identity()
+
 
         # 请求头信息
         headers = {
@@ -132,6 +182,18 @@ class creat_store(object):
         print("小微进件提交成功")
         print(res)
         print(res.text)
+        res_text = eval(res.text)
+        message = res_text["message"]
+
+        print(message)
+
+        if message == "该身份证资料已申请开启其他店铺。请更换经营者资料后，重新提交。":
+            print("重新调用生成小微进件信息")
+            self.addMicro()
+
+
+
+
         return json.loads(res.text)
 
 
@@ -157,23 +219,42 @@ class creat_store(object):
 
         # 请求体内容
         data = {
+            # "storeId": userId,
+            # "legalPersonName": "黄芝华",
+            # "legalPersonCard": "420111198310055541",
+            # "legalPersonPortrait": self.legalPersonPortrait,
+            # "legalPersonNational": self.legalPersonNational,
+            # "legalPersonCardValidTime": "2023-08-21",
+            # "businessLicenseType": 2,
+            # "businessLicense": self.businessLicense,
+            # "businessLicenseStartTime": "2019-01-16",
+            # "socialCreditCode": "92420105MA4KNXGN84",
+            # "businessLicenseValidTime": "长期",
+            # "merchantName": "武汉市汉阳区影子时尚服装工作室",
+            # "mobile": phonenumber,
+            # "alipayType": 1,
+            # "alipayAccount": "100000@qq.com",
+            # "operatorName": "黄芝华",
+            # "email": "100000@qq.com"
+
             "storeId": userId,
-            "legalPersonName": "花木兰",
-            "legalPersonCard": "410702197211052011",
+            "legalPersonName": "王彦成",
+            "legalPersonCard": "41052319680617003X",
             "legalPersonPortrait": self.legalPersonPortrait,
             "legalPersonNational": self.legalPersonNational,
             "legalPersonCardValidTime": "2023-08-21",
-            "businessLicenseType": 1,
+            "businessLicenseType": 2,
             "businessLicense": self.businessLicense,
             "businessLicenseStartTime": "2019-01-16",
-            "socialCreditCode": "92420105MA4KNXGN84",
+            "socialCreditCode": "92321081MA1XT24WXW",
             "businessLicenseValidTime": "长期",
-            "merchantName": "esigntest批批网实名测试企业",
+            "merchantName": "仪征市刘集镇花丫丫百货店",
             "mobile": phonenumber,
             "alipayType": 1,
             "alipayAccount": "100000@qq.com",
-            "operatorName": "花木兰",
+            "operatorName": "王彦成",
             "email": "100000@qq.com"
+
         }
 
         res = requests.session().post(url=url, data=json.dumps(data), headers=headers)
@@ -207,6 +288,10 @@ class creat_store(object):
             "storeId": userId,
             "legalPersonName": "洪泽佳",
             "legalPersonCard": "440582199704224876",
+            "mobile": 13250252197,
+            # "legalPersonName": "梁春榕",
+            # "legalPersonCard": "452128199312161021",
+            # "mobile": 15626202858,
             "legalPersonPortrait": self.legalPersonPortrait,
             "legalPersonNational": self.legalPersonNational,
             "legalPersonCardValidTime": "2023-08-21",
@@ -216,7 +301,6 @@ class creat_store(object):
             "socialCreditCode": "912388479846526897",
             "businessLicenseValidTime": "长期",
             "merchantName": "esigntest批批网实名测试企业",
-            "mobile": 13250252197,
             "alipayType": 1,
             "alipayAccount": "100000@qq.com",
             "operatorName": "花木兰",
@@ -281,17 +365,22 @@ class creat_store(object):
 if __name__ == '__main__':
     # phonenumber = input("输入手机号:")
     # userId = input("输入店铺ID:")、
-    url_select = 'TEST'
-    pea_mg_debugUserId = 65
-    pea_mg_debugToken = '59400d00009dbce48619070b084dd50c'
-    phonenumber = 13760801111
-    userId = 965916
+    # url_select = 'TEST'
+    # pea_mg_debugUserId = 65
+    # pea_mg_debugToken = 'e5a8e33a7559f20b57ad06a2d8b0f0a3'
+
+    url_select = 'RC'
+    pea_mg_debugUserId = 234
+    pea_mg_debugToken = '46b5f36f43e79e7df926e34e0e4ffd90'
+    phonenumber = 18026426150
+    userId = 966076
 
     creat_store_message = creat_store(url_select,str(pea_mg_debugUserId),str(pea_mg_debugToken),phonenumber,userId)
 
     creat_store_message.addstore()
     # creat_store_message.addMicro()
     # creat_store_message.addPerson()
-    # creat_store_message.addCompany()
+    creat_store_message.addCompany()
+
 
 
